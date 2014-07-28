@@ -1,0 +1,10 @@
+{
+  "name": "moodle-qtype_ddorder-order",
+  "builds": {
+    "moodle-qtype_ddorder-order": {
+      "jsfiles": [
+        "order.js"
+      ]
+    }
+  }
+}

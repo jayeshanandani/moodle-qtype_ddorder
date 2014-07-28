@@ -1,0 +1,9 @@
+{
+  "moodle-qtype_ddorder-order": {
+    "requires": [
+        "base",
+        "node",
+        "text-wordbreak"
+    ]
+  }
+}
