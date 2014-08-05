@@ -32,7 +32,7 @@ class qtype_ddorder extends question_type {
 	public function get_question_options($question) {
         global $DB;
         parent::get_question_options($question);
-        $question->options = $DB->get_record('qtype_ddorder_options', array('question' => $question->id));
+        $question->options = $DB->get_record('qtype_ddorder_options', array('questionid' => $question->id));
         $question->options->subquestions = $DB->get_records('question_answers',
                 array('question' => $question->id), 'id ASC');
         return true;
@@ -49,7 +49,6 @@ class qtype_ddorder extends question_type {
         // $subquestions will be an array with subquestion ids
         $subquestions = array();
 
-        // Insert all the new question+answer pairs
         $ordercount = 1;
         foreach ($question->subquestions as $key => $questiontext) {
             if ($questiontext['text'] == '') {
@@ -60,20 +59,17 @@ class qtype_ddorder extends question_type {
             $subquestion = array_shift($oldsubquestions);
             if (!$subquestion) {
                 $subquestion = new stdClass();
-                // Determine a unique random code
-                $subquestion->code = rand(1, 999999999);
                 while ($DB->record_exists('question_answers',
-                        array('code' => $subquestion->code, 'question' => $question->id))) {
-                    $subquestion->code = rand(1, 999999999);
+                        array('question' => $question->id))) {
                 }
                 $subquestion->question = $question->id;
-                $subquestion->questiontext = '';
-                $subquestion->answertext = '';
+                $subquestion->answer = '';
+                $subquestion->feedback = '';
                 $subquestion->id = $DB->insert_record('question_answers', $subquestion);
             }
 
             $subquestion->questiontext = $this->import_or_save_files($questiontext,
-                    $context, 'qtype_ddorder', 'subquestion', $subquestion->id);
+                    $context, 'qtype_ddorder_options', 'subquestion', $subquestion->id);
             $subquestion->question = $question->id;
             $DB->update_record('question_answers', $subquestion);
 
@@ -98,7 +94,7 @@ class qtype_ddorder extends question_type {
             $options->id = $DB->insert_record('qtype_ddorder_options', $options);
         }
 
-        $options->subquestions = implode(',', $subquestions);
+        //$options->subquestions = implode(',', $subquestions);
         $options->horizontal = $question->horizontal;
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('qtype_ddorder_options', $options);
@@ -118,30 +114,6 @@ class qtype_ddorder extends question_type {
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {
-        parent::initialise_question_instance($question, $questiondata);
-
-        $question->shufflestems = true;
-        $question->horizontal = $questiondata->options->horizontal;
-        $this->initialise_combined_feedback($question, $questiondata, true);
-
-        $question->stems = array();
-        $question->choices = array();
-        $question->right = array();
-
-        foreach ($questiondata->options->subquestions as $matchsub) {
-            $ans = $matchsub->answertext;
-            $key = array_search($matchsub->answertext, $question->choices);
-            if ($key === false) {
-                $key = $matchsub->id;
-                $question->choices[$key] = $matchsub->answertext;
-            }
-
-            if ($matchsub->questiontext !== '') {
-                $question->stems[$matchsub->id] = $matchsub->questiontext;
-                $question->stemformat[$matchsub->id] = $matchsub->questiontextformat;
-                $question->right[$matchsub->id] = $key;
-            }
-        }
     }
 
     protected function make_hint($hint) {
@@ -150,7 +122,7 @@ class qtype_ddorder extends question_type {
 
     public function delete_question($questionid, $contextid) {
         global $DB;
-        $DB->delete_records('qtype_ddorder_options', array('question' => $questionid));
+        $DB->delete_records('qtype_ddorder_options', array('questionid' => $questionid));
         $DB->delete_records('question_answers', array('question' => $questionid));
 
         parent::delete_question($questionid, $contextid);
@@ -159,6 +131,18 @@ class qtype_ddorder extends question_type {
     public function get_random_guess_score($questiondata) {
         $q = $this->make_question($questiondata);
         return 1 / count($q->choices);
+    }
+
+    /**
+     * @return array of the grading styles possible.
+     */
+    public static function get_grading_styles() {
+        $styles = array();
+        foreach (array('linearmapping', 'allornone') as $gradingoption) {
+            $styles[$gradingoption] =
+                    get_string('grading' . $gradingoption, 'qtype_ddorder');
+        }
+        return $styles;
     }
 
     public function get_possible_responses($questiondata) {
@@ -183,57 +167,30 @@ class qtype_ddorder extends question_type {
     }
 
     public function move_files($questionid, $oldcontextid, $newcontextid) {
-        global $DB;
-        $fs = get_file_storage();
-
         parent::move_files($questionid, $oldcontextid, $newcontextid);
-
-        $subquestionids = $DB->get_records_menu('question_answers',
-                array('question' => $questionid), 'id', 'id,1');
-        foreach ($subquestionids as $subquestionid => $notused) {
-            $fs->move_area_files_to_new_context($oldcontextid,
-                    $newcontextid, 'qtype_order', 'subquestion', $subquestionid);
-        }
+        $this->move_files_in_combined_feedback($questionid, $oldcontextid, $newcontextid);
+        $this->move_files_in_hints($questionid, $oldcontextid, $newcontextid);
     }
 
-    protected function delete_files($questionid, $contextid) {
-        global $DB;
-        $fs = get_file_storage();
-
+   protected function delete_files($questionid, $contextid) {
         parent::delete_files($questionid, $contextid);
+        $this->delete_files_in_combined_feedback($questionid, $contextid);
+        $this->delete_files_in_hints($questionid, $contextid);
+    }
 
-        $subquestionids = $DB->get_records_menu('question_answers',
-                array('question' => $questionid), 'id', 'id,1');
-        foreach ($subquestionids as $subquestionid => $notused) {
-            $fs->delete_area_files($contextid, 'qtype_ddorder', 'subquestion', $subquestionid);
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
+        if (!isset($data['@']['type']) || $data['@']['type'] != 'ddorder') {
+            return false;
         }
-
-        $fs->delete_area_files($contextid, 'qtype_ddorder',
-                'correctfeedback', $questionid);
-        $fs->delete_area_files($contextid, 'qtype_ddorder',
-                'partiallycorrectfeedback', $questionid);
-        $fs->delete_area_files($contextid, 'qtype_ddorder',
-                'incorrectfeedback', $questionid);
-    }
- 
-    /**
-     ** Provide export functionality for xml format
-     ** @param question object the question object
-     ** @param format object the format object so that helper methods can be used 
-     ** @param extra mixed any additional format specific data that may be passed by the format (see format code for info)
-     ** @return string the data to append to the output buffer or false if error
-     **/
-    public function export_to_xml($question, qformat_xml $format, $extra=null) {
+        $question = parent::import_from_xml($data, $question, $format, null);
+        $format->import_combined_feedback($question, $data, true);
+        $format->import_hints($question, $data, true, false, $format->get_format($question->questiontextformat));
+        return $question;
     }
 
-   /**
-    ** Provide import functionality for xml format
-    ** @param data mixed the segment of data containing the question
-    ** @param question object question object processed (so far) by standard import code
-    ** @param format object the format object so that helper methods can be used (in particular error() )
-    ** @param extra mixed any additional format specific data that may be passed by the format (see format code for info)
-    ** @return object question object suitable for save_options() call or false if cannot handle
-    **/
-    public function import_from_xml($data, $question, qformat_xml $format, $extra=null) {
+    public function export_to_xml($question, qformat_xml $format, $extra = null) {
+        $output = parent::export_to_xml($question, $format);
+        $output .= $format->write_combined_feedback($question->options, $question->id, $question->contextid);
+        return $output;
     }
 }

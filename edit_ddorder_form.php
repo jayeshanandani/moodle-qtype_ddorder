@@ -30,6 +30,12 @@ class qtype_ddorder_edit_form extends question_edit_form {
      * @param object $mform the form being built.
      */
     protected function definition_inner($mform) {
+
+        $mform->addElement('select', 'grading', 
+                get_string('grading','ddorder'),
+                qtype_ddorder::get_grading_styles());
+        $mform->setDefault('grading','linearmapping');
+
         $mform->addElement('advcheckbox', 'horizontal', get_string('horizontal', 'qtype_ddorder'), null, null, array(0,1));
         $mform->setDefault('horizontal', 0);
 
@@ -71,7 +77,7 @@ class qtype_ddorder_edit_form extends question_edit_form {
                 'qtype_order',      // component
                 'subquestion',      // filarea
                 !empty($subquestion->id) ? (int) $subquestion->id : null, // itemid
-                $this->fileoptions, // options
+                $this->fileoptions // options
             );
             $question->subquestions[$key]['itemid'] = $draftid;
             

@@ -22,14 +22,17 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
-$string['pluginname'] = 'DD Ordering';
 $string['addmoreqblanks'] = 'Add more items';
+$string['ddorder_help'] = 'This is a drag-and-drop question where items can be reordered either vertically or horizontally.';
+$string['ddorder_link'] = 'question/type/ddorder';
+$string['grading'] = 'Select grading method';
+$string['gradinglinearmapping'] = 'Linear Mapping';
+$string['gradingallornone'] = 'All or none';
 $string['horizontal'] = 'Display items horizontally';
 $string['itemno'] = 'Item {$a}';
 $string['notenoughquestions'] = 'You must provide at least three items.';
 $string['order'] = 'Ordering';
-$string['ddorder_help'] = 'This is a drag-and-drop question where items can be reordered either vertically or horizontally.';
-$string['ddorder_link'] = 'question/type/ddorder';
+$string['pluginname'] = 'DD Ordering';
 $string['pluginnamesummary'] = 'A drag-and-drop question where items can be reordered either vertically or horizontally.';
 $string['pluginname_help'] = 'This is a drag-and-drop question where items can be reordered either vertically or horizontally.';
 $string['pluginname_link'] = 'question/type/ddorder';
