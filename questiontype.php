@@ -68,7 +68,7 @@ class qtype_ddorder extends question_type {
                 $subquestion->id = $DB->insert_record('question_answers', $subquestion);
             }
 
-            $subquestion->questiontext = $this->import_or_save_files($questiontext,
+            $subquestion->answer = $this->import_or_save_files($questiontext,
                     $context, 'qtype_ddorder_options', 'subquestion', $subquestion->id);
             $subquestion->question = $question->id;
             $DB->update_record('question_answers', $subquestion);
@@ -79,15 +79,15 @@ class qtype_ddorder extends question_type {
         // Delete old subquestions records
         $fs = get_file_storage();
         foreach ($oldsubquestions as $oldsub) {
-            $fs->delete_area_files($context->id, 'qtype_ddorder', 'subquestion', $oldsub->id);
+            $fs->delete_area_files($context->id, 'qtype_ddorder_options', 'subquestion', $oldsub->id);
             $DB->delete_records('question_answers', array('id' => $oldsub->id));
         }
 
         // Save the question options.
-        $options = $DB->get_record('qtype_ddorder_options', array('question' => $question->id));
+        $options = $DB->get_record('qtype_ddorder_options', array('questionid' => $question->id));
         if (!$options) {
             $options = new stdClass();
-            $options->question = $question->id;
+            $options->questionid = $question->id;
             $options->correctfeedback = '';
             $options->partiallycorrectfeedback = '';
             $options->incorrectfeedback = '';

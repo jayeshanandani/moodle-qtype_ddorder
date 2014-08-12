@@ -32,10 +32,10 @@ $string['horizontal'] = 'Display items horizontally';
 $string['itemno'] = 'Item {$a}';
 $string['notenoughquestions'] = 'You must provide at least three items.';
 $string['order'] = 'Ordering';
-$string['pluginname'] = 'DD Ordering';
+$string['pluginname'] = 'Drag and drop ordering';
 $string['pluginnamesummary'] = 'A drag-and-drop question where items can be reordered either vertically or horizontally.';
 $string['pluginname_help'] = 'This is a drag-and-drop question where items can be reordered either vertically or horizontally.';
 $string['pluginname_link'] = 'question/type/ddorder';
-$string['pluginnameadding'] = 'Adding ddordering Question';
-$string['pluginnameediting'] = 'Editing ddordering Question';
+$string['pluginnameadding'] = 'Adding Drag and drop ordering Question';
+$string['pluginnameediting'] = 'Editing Drag and drop ordering Question';
 

@@ -32,14 +32,14 @@ class qtype_ddorder_edit_form extends question_edit_form {
     protected function definition_inner($mform) {
 
         $mform->addElement('select', 'grading', 
-                get_string('grading','ddorder'),
+                get_string('grading','qtype_ddorder'),
                 qtype_ddorder::get_grading_styles());
         $mform->setDefault('grading','linearmapping');
 
         $mform->addElement('advcheckbox', 'horizontal', get_string('horizontal', 'qtype_ddorder'), null, null, array(0,1));
         $mform->setDefault('horizontal', 0);
 
-        $this->add_per_answer_fields($mform, get_string('questionno', 'question', '{no}'), 0);
+        $this->add_per_answer_fields($mform, get_string('itemno', 'qtype_ddorder', '{no}'),0,max(5, QUESTION_NUMANS_START));
 
         $this->add_combined_feedback_fields(true);
         $this->add_interactive_settings(true, true);
@@ -47,9 +47,8 @@ class qtype_ddorder_edit_form extends question_edit_form {
 
     protected function get_per_answer_fields($mform, $label, $gradeoptions, &$repeatedoptions, &$answersoption) {
         $repeated = array();
-        $repeated[] = $mform->createElement('header', 'answerhdr', $label);
         $repeated[] = $mform->createElement('editor', 'subquestions',
-                get_string('question'), null, $this->editoroptions);
+                $label, array('rows' => 1), $this->editoroptions);
         $repeatedoptions['subquestions']['type'] = PARAM_RAW;
         $answersoption = 'subquestions';
         
