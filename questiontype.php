@@ -94,7 +94,6 @@ class qtype_ddorder extends question_type {
             $options->id = $DB->insert_record('qtype_ddorder_options', $options);
         }
 
-        //$options->subquestions = implode(',', $subquestions);
         $options->horizontal = $question->horizontal;
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('qtype_ddorder_options', $options);

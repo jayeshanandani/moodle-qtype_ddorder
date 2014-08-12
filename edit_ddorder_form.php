@@ -39,7 +39,7 @@ class qtype_ddorder_edit_form extends question_edit_form {
         $mform->addElement('advcheckbox', 'horizontal', get_string('horizontal', 'qtype_ddorder'), null, null, array(0,1));
         $mform->setDefault('horizontal', 0);
 
-        $this->add_per_answer_fields($mform, get_string('itemno', 'qtype_ddorder', '{no}'),0,max(5, QUESTION_NUMANS_START));
+        $this->add_per_answer_fields($mform, get_string('itemno', 'qtype_ddorder', '{no}'),0);
 
         $this->add_combined_feedback_fields(true);
         $this->add_interactive_settings(true, true);

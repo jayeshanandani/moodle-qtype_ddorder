@@ -46,8 +46,8 @@ class backup_qtype_ddorder_plugin extends backup_qtype_plugin {
 
         // Now create the qtype own structures.
         $ddorder = new backup_nested_element('ddorder', array('id'), array(
-            'delimitchars', 'correctfeedback', 'correctfeedbackformat', 'partiallycorrectfeedback',
-            'partiallycorrectfeedbackformat',
+            'gradingmethod', 'horizontal', 'correctfeedback', 'correctfeedbackformat', 
+            'partiallycorrectfeedback', 'partiallycorrectfeedbackformat',
             'incorrectfeedback', 'incorrectfeedbackformat'));
 
         // Now the own qtype tree.
