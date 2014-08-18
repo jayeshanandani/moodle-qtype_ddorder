@@ -57,20 +57,22 @@ class qtype_ddorder_edit_form extends question_edit_form {
 
     protected function data_preprocessing($question) {
         $question = parent::data_preprocessing($question);
+        $question = $this->data_preprocessing_answers($question, true);
         $question = $this->data_preprocessing_combined_feedback($question, true);
         $question = $this->data_preprocessing_hints($question, true, true);
+
 
         if (empty($question->options)) {
             return $question;
         }
-
+        print_object($question);
         $question->horizontal = $question->options->horizontal;
 
         $key = 0;
         foreach ($question->options->subquestions as $subquestion) {
             $draftid = file_get_submitted_draft_itemid('subquestions[' . $key . ']');
             $question->subquestions[$key] = array();
-            $question->subquestions[$key]['text'] = file_prepare_draft_area(
+            $question->subquestions[$key]['answers'] = file_prepare_draft_area(
                 $draftid,           // draftid
                 $this->context->id, // context
                 'qtype_order',      // component

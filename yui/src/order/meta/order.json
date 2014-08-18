@@ -3,7 +3,9 @@
     "requires": [
         "base",
         "node",
-        "text-wordbreak"
+        "dd-constrain",
+        "dd-proxy",
+        "dd-drop"
     ]
   }
 }

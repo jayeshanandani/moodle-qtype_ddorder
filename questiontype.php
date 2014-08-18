@@ -29,12 +29,18 @@ require_once($CFG->dirroot . '/question/engine/lib.php');
 
 class qtype_ddorder extends question_type {
 
+	protected function initialise_question_instance(question_definition $question, $questiondata) {
+        parent::initialise_question_instance($question, $questiondata);
+        $this->initialise_question_answers($question, $questiondata);
+        $this->initialise_combined_feedback($question, $questiondata);
+    }
+
 	public function get_question_options($question) {
         global $DB;
-        parent::get_question_options($question);
         $question->options = $DB->get_record('qtype_ddorder_options', array('questionid' => $question->id));
         $question->options->subquestions = $DB->get_records('question_answers',
                 array('question' => $question->id), 'id ASC');
+        //parent::get_question_options($question);
         return true;
     }
 
@@ -59,9 +65,6 @@ class qtype_ddorder extends question_type {
             $subquestion = array_shift($oldsubquestions);
             if (!$subquestion) {
                 $subquestion = new stdClass();
-                while ($DB->record_exists('question_answers',
-                        array('question' => $question->id))) {
-                }
                 $subquestion->question = $question->id;
                 $subquestion->answer = '';
                 $subquestion->feedback = '';
@@ -93,7 +96,6 @@ class qtype_ddorder extends question_type {
             $options->incorrectfeedback = '';
             $options->id = $DB->insert_record('qtype_ddorder_options', $options);
         }
-
         $options->horizontal = $question->horizontal;
         $options = $this->save_combined_feedback_helper($options, $question, $context, true);
         $DB->update_record('qtype_ddorder_options', $options);
@@ -110,9 +112,6 @@ class qtype_ddorder extends question_type {
         }
 
         return true;
-    }
-
-    protected function initialise_question_instance(question_definition $question, $questiondata) {
     }
 
     protected function make_hint($hint) {
