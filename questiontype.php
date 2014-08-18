@@ -72,7 +72,7 @@ class qtype_ddorder extends question_type {
             }
 
             $subquestion->answer = $this->import_or_save_files($questiontext,
-                    $context, 'qtype_ddorder_options', 'subquestion', $subquestion->id);
+                    $context, 'qtype_ddorder', 'subquestion', $subquestion->id);
             $subquestion->question = $question->id;
             $DB->update_record('question_answers', $subquestion);
 

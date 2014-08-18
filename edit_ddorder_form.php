@@ -65,22 +65,24 @@ class qtype_ddorder_edit_form extends question_edit_form {
         if (empty($question->options)) {
             return $question;
         }
-        print_object($question);
+
         $question->horizontal = $question->options->horizontal;
 
         $key = 0;
         foreach ($question->options->subquestions as $subquestion) {
             $draftid = file_get_submitted_draft_itemid('subquestions[' . $key . ']');
             $question->subquestions[$key] = array();
-            $question->subquestions[$key]['answers'] = file_prepare_draft_area(
+            $question->subquestions[$key]['text'] = file_prepare_draft_area(
                 $draftid,           // draftid
                 $this->context->id, // context
-                'qtype_order',      // component
+                'qtype_ddorder',      // component
                 'subquestion',      // filarea
                 !empty($subquestion->id) ? (int) $subquestion->id : null, // itemid
-                $this->fileoptions // options
+                $this->fileoptions, // options
+                $subquestion->answer
             );
             $question->subquestions[$key]['itemid'] = $draftid;
+            $question->subquestions[$key]['format'] = $subquestion->answerformat;
             
             $key++;
         }
